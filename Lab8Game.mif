@@ -1,0 +1,144 @@
+WIDTH=16;
+DEPTH=2048;
+
+ADDRESS_RADIX=HEX;
+DATA_RADIX=HEX;
+
+CONTENT BEGIN
+0000: 1800; --     LOADI  0
+0001: 107A; --     STORE  Score
+0002: 9805; --     OUT    Hex1          ; Sets score = 0
+0003: 9804; --     OUT    Hex0          ; 0000 until a round starts
+0004: 107B; --     STORE  RandomNum
+0005: 9802; --     OUT    Timer         ; Begins 10 second clock
+0006: 804D; --     CALL   CheckTime
+0007: 9000; --     IN     Switches
+0008: 9801; --     OUT    LEDs
+0009: 7806; --     JNZ    WaitDown
+000A: 804D; --     CALL   CheckTime
+000B: 9000; --     IN     Switches
+000C: 9801; --     OUT    LEDs
+000D: 7011; --     JZERO  IncRandom
+000E: 2884; --     SUB    Bit9
+000F: 7015; --     JZERO  StartRound
+0010: 5806; --     JUMP   WaitDown
+0011: 087B; --     LOAD   RandomNum
+0012: 3001; --     ADDI   1
+0013: 107B; --     STORE  RandomNum
+0014: 580A; --     JUMP   Generate
+0015: 087B; --     LOAD   RandomNum
+0016: 107C; --     STORE  Num
+0017: 9804; --     OUT    Hex0
+0018: 804D; --     CALL   CheckTime
+0019: 9000; --     IN     Switches
+001A: 9801; --     OUT    LEDs
+001B: 107E; --     STORE  SwValue
+001C: 087C; --     LOAD   Num
+001D: 7006; --     JZERO  WaitDown
+001E: 8052; --     CALL   FindMax
+001F: 087C; --     LOAD   Num
+0020: 107F; --     STORE  DigWork
+0021: 1801; --     LOADI  1
+0022: 1080; --     STORE  SwBit
+0023: 180F; --     LOADI  &amp;H000F
+0024: 1081; --     STORE  PosMask
+0025: 1804; --     LOADI  4
+0026: 1082; --     STORE  PosCount
+0027: 087E; --     LOAD   SwValue
+0028: 3880; --     AND    SwBit
+0029: 7030; --     JZERO  NextPos
+002A: 087F; --     LOAD   DigWork
+002B: 3885; --     AND    FMask
+002C: 7030; --     JZERO  NextPos
+002D: 287D; --     SUB    Max
+002E: 703E; --     JZERO  Correct
+002F: 584A; --     JUMP   GameOver
+0030: 087F; --     LOAD   DigWork
+0031: 5014; --     SHIFT  -4
+0032: 107F; --     STORE  DigWork
+0033: 0880; --     LOAD   SwBit
+0034: 5001; --     SHIFT  1
+0035: 1080; --     STORE  SwBit
+0036: 0881; --     LOAD   PosMask
+0037: 5004; --     SHIFT  4
+0038: 1081; --     STORE  PosMask
+0039: 0882; --     LOAD   PosCount
+003A: 37FF; --     ADDI   -1
+003B: 1082; --     STORE  PosCount
+003C: 7827; --     JNZ    Scan
+003D: 5818; --     JUMP   Play
+003E: 087C; --     LOAD   Num
+003F: 3881; --     AND    PosMask       
+0040: 1083; --     STORE  Temp
+0041: 087C; --     LOAD   Num
+0042: 2883; --     SUB    Temp
+0043: 107C; --     STORE  Num
+0044: 9804; --     OUT    Hex0
+0045: 087A; --     LOAD   Score
+0046: 3001; --     ADDI   1
+0047: 107A; --     STORE  Score
+0048: 9805; --     OUT    Hex1
+0049: 5818; --     JUMP   Play
+004A: 9000; --     IN     Switches
+004B: 9801; --     OUT    LEDs
+004C: 584A; --     JUMP   GameOver
+004D: 9002; --     IN     Timer
+004E: 379C; --     ADDI   -100
+004F: 6051; --     JNEG   CT_OK
+0050: 584A; --     JUMP   GameOver
+0051: 8800; --     RETURN
+0052: 087C; --     LOAD   Num
+0053: 106A; --     STORE  FM_Work
+0054: 1077; --     STORE  HN_A
+0055: 5014; --     SHIFT  -4
+0056: 106A; --     STORE  FM_Work
+0057: 1078; --     STORE  HN_B
+0058: 806B; --     CALL   HigherNibble
+0059: 107D; --     STORE  Max
+005A: 086A; --     LOAD   FM_Work
+005B: 5014; --     SHIFT  -4
+005C: 106A; --     STORE  FM_Work
+005D: 1078; --     STORE  HN_B
+005E: 087D; --     LOAD   Max
+005F: 1077; --     STORE  HN_A
+0060: 806B; --     CALL   HigherNibble
+0061: 107D; --     STORE  Max
+0062: 086A; --     LOAD   FM_Work
+0063: 5014; --     SHIFT  -4
+0064: 1078; --     STORE  HN_B
+0065: 087D; --     LOAD   Max
+0066: 1077; --     STORE  HN_A
+0067: 806B; --     CALL   HigherNibble
+0068: 107D; --     STORE  Max
+0069: 8800; --     RETURN
+006A: 0000; -- FM_Work:   DW 0
+006B: 0877; --     LOAD   HN_A
+006C: 3879; --     AND    HN_Mask
+006D: 1077; --     STORE  HN_A
+006E: 0878; --     LOAD   HN_B
+006F: 3879; --     AND    HN_Mask
+0070: 1078; --     STORE  HN_B
+0071: 2877; --     SUB    HN_A
+0072: 6875; --     JPOS   HN_BigB
+0073: 0877; --     LOAD   HN_A
+0074: 8800; --     RETURN
+0075: 0878; --     LOAD   HN_B
+0076: 8800; --     RETURN
+0077: 0000; -- HN_A:      DW 0
+0078: 0000; -- HN_B:      DW 0
+0079: 000F; -- HN_Mask:   DW &amp;H000F
+007A: 0000; -- Score:     DW 0
+007B: 0000; -- RandomNum: DW 0
+007C: 0000; -- Num:       DW 0
+007D: 0000; -- Max:       DW 0
+007E: 0000; -- SwValue:   DW 0
+007F: 0000; -- DigWork:   DW 0
+0080: 0000; -- SwBit:     DW 0
+0081: 0000; -- PosMask:   DW 0
+0082: 0000; -- PosCount:  DW 0
+0083: 0000; -- Temp:      DW 0
+0084: 0200; -- Bit9:      DW &amp;H0200
+0085: 000F; -- FMask:     DW &amp;H000F
+[0086..07FF] : 0000; -- [empty memory]
+END;
+
